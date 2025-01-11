@@ -1,0 +1,11 @@
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\Debug\ZumbisModV.dll
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\Debug\ZumbisModV.pdb
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\Debug\LemonUI.SHVDN3.dll
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\Debug\ScriptHookVDotNet3.dll
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\Debug\LemonUI.SHVDN3.xml
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\Debug\ScriptHookVDotNet3.xml
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\Debug\ZumbisModV.csproj.AssemblyReference.cache
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\Debug\ZumbisModV.csproj.CoreCompileInputs.cache
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\Debug\ZumbisModV.csproj.Up2Date
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\Debug\ZumbisModV.dll
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\Debug\ZumbisModV.pdb

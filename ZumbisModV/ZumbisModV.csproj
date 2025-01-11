@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{71A78FF1-6643-4137-A329-5339A749F092}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ZumbisModV</RootNamespace>
+    <AssemblyName>ZumbisModV</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LemonUI.SHVDN3, Version=2.1.2.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\LemonUI.SHVDN3.2.1.2\lib\net48\LemonUI.SHVDN3.dll</HintPath>
+    </Reference>
+    <Reference Include="ScriptHookVDotNet3, Version=3.6.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\ScriptHookVDotNet3.3.6.0\lib\net48\ScriptHookVDotNet3.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BuildableInventoryItem.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Controllers\EventTypes.cs" />
+    <Compile Include="Controllers\SurvivorController.cs" />
+    <Compile Include="Controllers\WorldController.cs" />
+    <Compile Include="CraftableInventoryItem.cs" />
+    <Compile Include="CraftableItemComponent.cs" />
+    <Compile Include="DataClasses\ItemPreview.cs" />
+    <Compile Include="DataClasses\ParticleEffect.cs" />
+    <Compile Include="DataClasses\SpawnBlocker.cs" />
+    <Compile Include="DataClasses\Survivors.cs" />
+    <Compile Include="Extensions\Alertness.cs" />
+    <Compile Include="Extensions\CombatAbility.cs" />
+    <Compile Include="Extensions\CombatAttributes.cs" />
+    <Compile Include="Extensions\CombatMovement.cs" />
+    <Compile Include="Extensions\CombatRange.cs" />
+    <Compile Include="Extensions\ComponentId.cs" />
+    <Compile Include="Extensions\ConfigFlags.cs" />
+    <Compile Include="Extensions\DamagePack.cs" />
+    <Compile Include="Extensions\DoorState.cs" />
+    <Compile Include="Extensions\EntityExtended.cs" />
+    <Compile Include="Extensions\FirendlyFireType.cs" />
+    <Compile Include="Extensions\GameExtended.cs" />
+    <Compile Include="Extensions\PedExtended.cs" />
+    <Compile Include="Extensions\PlayerExtended.cs" />
+    <Compile Include="Extensions\RandomExtensions.cs" />
+    <Compile Include="Extensions\ScriptExtended.cs" />
+    <Compile Include="Extensions\SpeechModifier.cs" />
+    <Compile Include="Extensions\Subtask.cs" />
+    <Compile Include="Extensions\SystemExtended.cs" />
+    <Compile Include="Extensions\V3Extended.cs" />
+    <Compile Include="Extensions\VehicleExtended.cs" />
+    <Compile Include="Extensions\WorldExtended.cs" />
+    <Compile Include="FoodInventoryItem.cs" />
+    <Compile Include="FoodType.cs" />
+    <Compile Include="Interfaces\IAnimatable.cs" />
+    <Compile Include="Interfaces\ICraftable.cs" />
+    <Compile Include="Interfaces\IDeletable.cs" />
+    <Compile Include="Interfaces\IFood.cs" />
+    <Compile Include="Interfaces\IHandleable.cs" />
+    <Compile Include="Interfaces\IIdentifier.cs" />
+    <Compile Include="Interfaces\IInteractable.cs" />
+    <Compile Include="Interfaces\IMapObject.cs" />
+    <Compile Include="Interfaces\IProp.cs" />
+    <Compile Include="Interfaces\ISpawner.cs" />
+    <Compile Include="Interfaces\IUpdatable.cs" />
+    <Compile Include="Interfaces\IValidatable.cs" />
+    <Compile Include="Interfaces\IWeapon.cs" />
+    <Compile Include="Inventory.cs" />
+    <Compile Include="InventoryItemBase.cs" />
+    <Compile Include="ItemEvent.cs" />
+    <Compile Include="ItemType.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="MapProp.cs" />
+    <Compile Include="MenuType.cs" />
+    <Compile Include="ModController.cs" />
+    <Compile Include="NearbyResource.cs" />
+    <Compile Include="PedCollection.cs" />
+    <Compile Include="PedData.cs" />
+    <Compile Include="PlayerManagement\LootPickupType.cs" />
+    <Compile Include="PlayerManagement\PedTask.cs" />
+    <Compile Include="PlayerManagement\PlayerInventory.cs" />
+    <Compile Include="PlayerManagement\PlayerMap.cs" />
+    <Compile Include="PlayerManagement\StatDisplayItem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scripts\AnimalSpawner.cs" />
+    <Compile Include="Scripts\Loot247.cs" />
+    <Compile Include="Scripts\MapInteraction.cs" />
+    <Compile Include="Scripts\RecruitPeds.cs" />
+    <Compile Include="Scripts\ScriptEventHandler.cs" />
+    <Compile Include="Scripts\VehicleRepair.cs" />
+    <Compile Include="Scripts\ZombieCreator.cs" />
+    <Compile Include="Scripts\ZombieVehicleSpawner.cs" />
+    <Compile Include="Stat.cs" />
+    <Compile Include="Static\Config.cs" />
+    <Compile Include="Static\Database.cs" />
+    <Compile Include="Static\MenuController.cs" />
+    <Compile Include="Static\Relationships.cs" />
+    <Compile Include="Static\Serializer.cs" />
+    <Compile Include="Stats.cs" />
+    <Compile Include="Extensions\UiExtended.cs" />
+    <Compile Include="SurvivorTypes\FriendlySurvivors.cs" />
+    <Compile Include="SurvivorTypes\HostileSurvivors.cs" />
+    <Compile Include="SurvivorTypes\MerryweatherSurvivors.cs" />
+    <Compile Include="UsableInventoryItem.cs" />
+    <Compile Include="UsableItemEvent.cs" />
+    <Compile Include="Utils\Utils.cs" />
+    <Compile Include="VehicleCollection.cs" />
+    <Compile Include="VehicleData.cs" />
+    <Compile Include="Weapon.cs" />
+    <Compile Include="WeaponInventoryItem.cs" />
+    <Compile Include="WeaponStorageInventoryItem.cs" />
+    <Compile Include="Wrappers\EntityEventWrapper.cs" />
+    <Compile Include="Zumbis\ZumbiPed.cs" />
+    <Compile Include="Zumbis\ZumbiTypes\Runner.cs" />
+    <Compile Include="Zumbis\ZumbiTypes\Walker.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>COPY "$(TargetPath)" "D:\Jogos\GTAV\GTAV\scripts"</PostBuildEvent>
+  </PropertyGroup>
+</Project>
