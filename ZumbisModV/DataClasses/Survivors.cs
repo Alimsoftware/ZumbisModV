@@ -9,24 +9,20 @@ namespace ZumbisModV.DataClasses
     public abstract class Survivors
     {
         public static float MaxSpawnDistance = 650f;
-        public static float MinSpawnDistance = 50f; //400f;
+        public static float MinSpawnDistance = 400f;
         public static float DeleteRange = 1000f;
 
         public virtual event SurvivorCompletedEvent Completed;
 
         public Ped PlayerPed => Database.PlayerPed;
-
         public Vector3 PlayerPosition => Database.PlayerPosition;
 
         public abstract void Update();
-
         public abstract void SpawnEntities();
-
         public abstract void CleanUp();
-
         public abstract void Abort();
 
-        public void Complete()
+        public void OnCompleted()
         {
             Completed?.Invoke(this);
         }
@@ -56,7 +52,7 @@ namespace ZumbisModV.DataClasses
             }
 
             Logger.LogInfo($"Spawn at {spawn} is invalid. Completing process.");
-            Complete();
+            OnCompleted();
             return false;
         }
 
@@ -81,6 +77,9 @@ namespace ZumbisModV.DataClasses
                 }
             }
 
+            Logger.LogWarning(
+                "Could not find a valid spawn point after multiple attempts. Returning player position."
+            ); // Log de warning
             // Fallback: Retorna a posição do jogador se nenhuma válida for encontrada
             return PlayerPosition;
         }

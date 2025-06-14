@@ -24,7 +24,7 @@ namespace ZumbisModV.DataClasses
 
         public ItemPreview()
         {
-            ScriptEventHandler.Instance.RegisterScript(OnTick);
+            ScriptEventHandler.Instance.RegisterScript(new EventHandler(OnTick));
             ScriptEventHandler.Instance.Aborted += (sender, args) => Abort();
         }
 

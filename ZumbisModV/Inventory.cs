@@ -32,7 +32,10 @@ namespace ZumbisModV
         public NativeMenu InventoryMenu;
 
         [NonSerialized]
-        public NativeMenu ResourceMenu;
+        public NativeMenu InventorySubMenu;
+
+        [NonSerialized]
+        public NativeMenu ResourceSubMenu;
 
         [field: NonSerialized]
         public event CraftedItemEvent TryCraft;
@@ -567,25 +570,49 @@ namespace ZumbisModV
             Items.Add(storageInventoryItem);
         }
 
+        public void LoadMenuss()
+        {
+            /* Function.Call(Hash.PLAY_SOUND_FRONTEND, -1, "OTHER_TEXT", "HUD_AWARDS");
+             InventoryMenu = new NativeMenu("Inventário", "SELECIONE UMA OPÇÃO", "Seus itens");
+             ResourceMenu = new NativeMenu(
+                 "Recursos",
+                 "SELECIONE UMA OPÇÃO",
+                 "Recursos disponíveis"
+             );
+             AddItemsToMenu(InventoryMenu, Items, ItemType.Item);
+             AddItemsToMenu(ResourceMenu, Resources, ItemType.Recurso);
+             MenuController.MenuPool.Add(InventoryMenu);
+             MenuController.MenuPool.Add(ResourceMenu);
+             RefreshMenu();
+             if (MenuType != 0)
+                 return;
+             InventoryMenu.Buttons.Add(new InstructionalButton("Criar", Control.LookBehind));
+             InventoryMenu.Buttons.Add(new InstructionalButton("Projeto", Control.Enter));*/
+        }
+
         public void LoadMenus()
         {
-            InventoryMenu = new NativeMenu("Inventário", "SELECIONE UMA OPÇÃO", "Seus itens");
-            ResourceMenu = new NativeMenu(
+            Function.Call(Hash.PLAY_SOUND_FRONTEND, -1, "OTHER_TEXT", "HUD_AWARDS");
+            InventoryMenu = new NativeMenu("Inventário", "SELECIONE UMA OPÇÃO");
+
+            InventorySubMenu = new NativeMenu("Inventário", "SELECIONE UMA OPÇÃO", "Seus itens");
+            ResourceSubMenu = new NativeMenu(
                 "Recursos",
                 "SELECIONE UMA OPÇÃO",
                 "Recursos disponíveis"
             );
-            AddItemsToMenu(InventoryMenu, Items, ItemType.Item);
-            AddItemsToMenu(ResourceMenu, Resources, ItemType.Recurso);
-            MenuController.MenuPool.Add(InventoryMenu);
-            MenuController.MenuPool.Add(ResourceMenu);
+            AddItemsToMenu(InventorySubMenu, Items, ItemType.Item);
+            AddItemsToMenu(ResourceSubMenu, Resources, ItemType.Recurso);
+            InventoryMenu.AddSubMenu(InventorySubMenu);
+            InventoryMenu.AddSubMenu(ResourceSubMenu);
+
+            MenuController.MenuPool.Add(InventorySubMenu);
+            MenuController.MenuPool.Add(ResourceSubMenu);
             RefreshMenu();
             if (MenuType != 0)
                 return;
-            var createButton = new InstructionalButton("Projeto", Control.Enter);
-            var projectButton = new InstructionalButton("Criar", Control.LookBehind);
-            InventoryMenu.Buttons.Add(createButton);
-            InventoryMenu.Buttons.Add(projectButton);
+            InventorySubMenu.Buttons.Add(new InstructionalButton("Criar", Control.LookBehind));
+            InventorySubMenu.Buttons.Add(new InstructionalButton("Projeto", Control.Enter));
         }
 
         private void OnProjectButtonPressed(object sender, EventArgs e)
@@ -595,14 +622,14 @@ namespace ZumbisModV
 
         public void RefreshMenu()
         {
-            UpdateMenuSpecific(InventoryMenu, Items, MenuType == MenuType.Player);
-            UpdateMenuSpecific(ResourceMenu, Resources, false);
+            UpdateMenuSpecific(InventorySubMenu, Items, MenuType == MenuType.Player);
+            UpdateMenuSpecific(ResourceSubMenu, Resources, false);
         }
 
         public void ProcessKeys()
         {
             var flag = MenuType > MenuType.Player;
-            if (flag)
+            if (!flag)
             {
                 //Notification.Show(MenuType.ToString());
                 if (InventoryMenu.Visible)
@@ -678,10 +705,10 @@ namespace ZumbisModV
             switch (type)
             {
                 case ItemType.Recurso:
-                    UpdateMenuSpecific(ResourceMenu, Resources, false);
+                    UpdateMenuSpecific(ResourceSubMenu, Resources, false);
                     break;
                 case ItemType.Item:
-                    UpdateMenuSpecific(InventoryMenu, Items, MenuType == MenuType.Player);
+                    UpdateMenuSpecific(InventorySubMenu, Items, MenuType == MenuType.Player);
                     break;
             }
             RefreshMenu();

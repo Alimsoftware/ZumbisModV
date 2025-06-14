@@ -117,8 +117,8 @@ namespace ZumbisModV.PlayerManagement
                     Serializer.Serialize("./scripts/Inventory.dat", _inventory);
                 }
             );
-            _mainMenu.AddSubMenu(_inventory.InventoryMenu).Title = "Inventário";
-            _mainMenu.AddSubMenu(_inventory.ResourceMenu).Title = "Recursos";
+            _mainMenu.AddSubMenu(_inventory.InventorySubMenu).Title = "Inventário";
+            _mainMenu.AddSubMenu(_inventory.ResourceSubMenu).Title = "Recursos";
             _mainMenu.Add(cbEdit);
             _mainMenu.Add(cbDevMode);
 
@@ -157,11 +157,11 @@ namespace ZumbisModV.PlayerManagement
                 PlayerPed.Weapons.Select(WeaponHash.Knife, true);
                 Notification.Show("Você estripou o animal para obter ~g~carne crua~s~.");
                 PlayerPed.Task.PlayAnimation(
-                    "amb@world_human_gardener_plant@male@base",
-                    "base",
-                    8f,
-                    3000,
-                    (AnimationFlags)0
+                    animDict: "amb@world_human_gardener_plant@male@base",
+                    animName: "base",
+                    blendInSpeed: 8f,
+                    duration: 3000,
+                    flags: AnimationFlags.None
                 );
                 _lootedPeds.Add(ped);
             }

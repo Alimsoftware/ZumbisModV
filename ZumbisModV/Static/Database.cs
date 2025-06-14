@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using GTA;
 using GTA.Math;
 using ZumbisModV.Extensions;
@@ -9,10 +8,7 @@ namespace ZumbisModV.Static
 {
     public static class Database
     {
-        // Token: 0x04000175 RID: 373
         public static Random Random = new Random();
-
-        // Token: 0x04000176 RID: 374
         public static string[] VehicleModels = new string[]
         {
             "fusilade",
@@ -37,47 +33,26 @@ namespace ZumbisModV.Static
             "ambulance",
         };
 
-        // Token: 0x04000177 RID: 375
         public static WeaponHash[] WeaponHashes;
-
-        // Token: 0x04000178 RID: 376
         public static VehicleClass[] LandVehicleClasses;
-
-        // Token: 0x04000179 RID: 377
         public static VehicleHash[] VehicleHashes;
-
-        // Token: 0x0400017A RID: 378
         public static Model[] WrckedVehicleModels;
-
-        // Token: 0x0400017B RID: 379
         public static Vector3[] AnimalSpawns;
-
-        // Token: 0x0400017C RID: 380
         public static Vector3[] Shops247Locations;
-
-        public static Ped PlayerPed => Database.Player.Character;
-
+        public static Ped PlayerPed => Player.Character;
         public static Player Player => Game.Player;
-
-        public static Vehicle PlayerCurrentVehicle => Database.PlayerPed.CurrentVehicle;
-
-        public static PedGroup PlayerGroup => Database.PlayerPed.PedGroup;
-
-        public static bool PlayerIsDead => Database.PlayerPed.IsDead;
-
-        public static bool PlayerInVehicle => Database.PlayerPed.IsInVehicle();
-
-        public static bool PlayerIsSprinting => Database.PlayerPed.IsSprinting;
-
+        public static Vehicle PlayerCurrentVehicle => PlayerPed.CurrentVehicle;
+        public static PedGroup PlayerGroup => PlayerPed.PedGroup;
+        public static bool PlayerIsDead => PlayerPed.IsDead;
+        public static bool PlayerInVehicle => PlayerPed.IsInVehicle();
+        public static bool PlayerIsSprinting => PlayerPed.IsSprinting;
         public static int PlayerHealth
         {
-            get => Database.PlayerPed.Health;
-            set => Database.PlayerPed.Health = value;
+            get => PlayerPed.Health;
+            set => PlayerPed.Health = value;
         }
-
-        public static int PlayerMaxHealth => Database.PlayerPed.MaxHealth;
-
-        public static Vector3 PlayerPosition => Database.PlayerPed.Position;
+        public static int PlayerMaxHealth => PlayerPed.MaxHealth;
+        public static Vector3 PlayerPosition => PlayerPed.Position;
 
         public static VehicleHash GetRandomVehicleByClass(VehicleClass vClass)
         {
@@ -104,14 +79,12 @@ namespace ZumbisModV.Static
             }
 
             // Seleciona um veículo aleatório da lista filtrada
-            return hashes[Database.Random.Next(hashes.Length)];
+            return hashes[Random.Next(hashes.Length)];
         }
 
         public static Model GetRandomVehicleModel()
         {
-            Model model = new Model(
-                Database.VehicleModels[Database.Random.Next(Database.VehicleModels.Length)]
-            );
+            Model model = new Model(VehicleModels[Random.Next(VehicleModels.Length)]);
             return model.Request(1500) ? model : null;
         }
 
@@ -149,7 +122,7 @@ namespace ZumbisModV.Static
                 VehicleHash.Slamtruck,
             };
 
-            Database.WrckedVehicleModels = new Model[]
+            WrckedVehicleModels = new Model[]
             {
                 "prop_rub_carwreck_2",
                 "prop_rub_carwreck_3",
@@ -168,7 +141,7 @@ namespace ZumbisModV.Static
                 "prop_rub_carwreck_16",
                 "prop_rub_carwreck_17",
             };
-            Database.AnimalSpawns = new Vector3[]
+            AnimalSpawns = new Vector3[]
             {
                 new Vector3(-2333.765f, 1274.093f, 326.2806f),
                 new Vector3(-2583.969f, 489.153f, 218.0715f),
@@ -177,7 +150,7 @@ namespace ZumbisModV.Static
                 new Vector3(2516.562f, -1684.065f, 35.24468f),
                 new Vector3(2825.585f, -1469.839f, 11.25044f),
             };
-            Database.Shops247Locations = new Vector3[]
+            Shops247Locations = new Vector3[]
             {
                 new Vector3(-3041.777f, 588.7258f, 7.908933f),
                 new Vector3(-3243.759f, 1005.157f, 12.83071f),

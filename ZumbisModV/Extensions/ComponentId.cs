@@ -11,7 +11,7 @@
         Foot = 6,
         Accessories1 = 8,
         Accessories2 = 9,
-        Decals = 10, // 0x0000000A
-        Aux = 11, // 0x0000000B
+        Decals = 10,
+        Aux = 11,
     }
 }

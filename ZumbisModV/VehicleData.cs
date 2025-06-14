@@ -9,7 +9,7 @@ using ZumbisModV.Interfaces;
 namespace ZumbisModV
 {
     [Serializable]
-    public class VehicleData : ISpatial, IHandleable, ZumbisModV.Interfaces.IDeletable
+    public class VehicleData : ISpatial, IHandleable, Interfaces.IDeletable
     {
         public int Handle { get; set; }
         public int Hash { get; set; }

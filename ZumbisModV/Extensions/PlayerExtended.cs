@@ -9,7 +9,8 @@ namespace ZumbisModV.Extensions
         {
             Function.Call(
                 Hash.SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS,
-                new InputArgument[2] { player.Handle, toggle ? 1 : 0 }
+                player.Handle,
+                toggle ? 1 : 0
             );
         }
     }

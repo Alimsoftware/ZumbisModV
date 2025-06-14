@@ -99,7 +99,7 @@ namespace ZumbisModV.Zumbis.ZumbiTypes
             );
 
             if (!target.IsInvincible)
-                target.ApplyDamage(ZumbiPed.ZombieDamage);
+                target.ApplyDamage(ZombieDamage);
 
             InfectTarget(target);
         }

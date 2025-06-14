@@ -14,6 +14,7 @@ namespace ZumbisModV
 
         public int Amount { get; set; }
         public int MaxAmount { get; set; }
+
         public string Id { get; set; }
         public string Description { get; set; }
 

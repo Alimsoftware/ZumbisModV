@@ -14,19 +14,6 @@ namespace ZumbisModV.Scripts
 
         public static ZumbiPed InfectPed(Ped ped, int health, bool overrideAsFastZombie = false)
         {
-            ConfigurePedForZombie(ped);
-            SetZombieAttributes(ped);
-            float zombieSpeedFactor = DetermineZombieSpeedFactor(overrideAsFastZombie);
-            ped.Health = ped.MaxHealth = health;
-
-            if (zombieSpeedFactor > 0.0f && ZombieCreator.Runners)
-                return new Runner(ped);
-
-            return new Walker(ped);
-        }
-
-        private static void ConfigurePedForZombie(Ped ped)
-        {
             // Desabilitando animações e eventos não necessários
             ped.CanPlayGestures = false;
             ped.SetCanPlayAmbientAnims(false);
@@ -34,42 +21,52 @@ namespace ZumbisModV.Scripts
             ped.SetPathCanUseLadders(false);
             ped.SetPathCanClimb(false);
             ped.DisablePainAudio(true);
-            ped.ApplyDamagePack(0.0f, 1f, DamagePack.BigHitByVehicle);
-            ped.ApplyDamagePack(0.0f, 1f, DamagePack.ExplosionMed);
+            ped.ApplyDamagePack(0f, 1f, DamagePack.BigHitByVehicle);
+            ped.ApplyDamagePack(0f, 1f, DamagePack.ExplosionMed);
             ped.DiesOnLowHealth = false;
-            ped.SetAlertness(Alertness.Nuetral);
-            ped.SetCombatAttributes(CombatAttributes.AlwaysFight, true);
+            ped.SetAlertness(Alertness.Neutral);
+            ped.SetCombatAttribute(GTA.CombatAttributes.CanFightArmedPedsWhenNotArmed, true);
             Function.Call(Hash.SET_PED_FLEE_ATTRIBUTES, ped.Handle, 0, 0);
-            ped.SetConfigFlag(281, true);
+            ped.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
             ped.Task.WanderAround(ped.Position, ZumbiPed.WanderRadius);
-            ped.AlwaysKeepTask = true;
+            ped.KeepTaskWhenMarkedAsNoLongerNeeded = true;
             ped.BlockPermanentEvents = true;
             ped.IsPersistent = false;
             ped.AttachedBlip?.Delete();
             ped.IsPersistent = true;
             ped.RelationshipGroup = Relationships.InfectedRelationship;
-        }
 
-        private static void SetZombieAttributes(Ped ped)
-        {
             // Configura o zumbi para o tipo de ataque adequado (Walker ou Runner)
-            float num = 0.055f;
+            float chance = 0.055f;
             if (IsNightFall())
-                num = 0.5f;
+            {
+                chance = 0.5f;
+            }
+            else
+            {
+                TimeSpan currentDayTime = World.CurrentTimeOfDay;
 
-            TimeSpan currentDayTime = World.CurrentTimeOfDay;
-            if (currentDayTime.Hours >= 20 || currentDayTime.Hours <= 3)
-                num = 0.4f;
-        }
-
-        private static float DetermineZombieSpeedFactor(bool overrideAsFastZombie)
-        {
-            return Database.Random.NextDouble() < 0.4 || overrideAsFastZombie ? 0.4f : 0.0f;
+                if (currentDayTime.Hours >= 20 || currentDayTime.Hours <= 3)
+                {
+                    chance = 0.4f;
+                }
+            }
+            bool isRunner =
+                (Database.Random.NextDouble() < (double)chance || overrideAsFastZombie) && Runners;
+            if (isRunner)
+            {
+                return new Runner(ped);
+            }
+            else
+            {
+                ped.Health = ped.MaxHealth = health;
+                return new Walker(ped);
+            }
         }
 
         public static bool IsNightFall()
         {
-            if (!ZombieCreator.Runners)
+            if (!Runners)
                 return false;
 
             TimeSpan currentDayTime = World.CurrentTimeOfDay;

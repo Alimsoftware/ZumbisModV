@@ -19,8 +19,8 @@ namespace ZumbisModV.SurvivorTypes
         }
 
         public static FriendlySurvivors Instance { get; private set; }
-        private readonly List<Ped> _peds = new List<Ped>();
-        private readonly PedGroup _pedGroup = new PedGroup();
+        private List<Ped> _peds = new List<Ped>();
+        private PedGroup _pedGroup = new PedGroup();
 
         public void RemovePed(Ped item)
         {
@@ -41,91 +41,83 @@ namespace ZumbisModV.SurvivorTypes
         {
             if (_peds.Count <= 0)
             {
-                Complete();
+                OnCompleted();
             }
         }
 
         public override void SpawnEntities()
         {
-            Logger.LogInfo("SpawnEntities() iniciado.");
-
-            if (Database.Random == null || Database.WeaponHashes == null)
-            {
-                Logger.LogError("Database ou seus membros não estão inicializados.");
-                return;
-            }
-
             int num = Database.Random.Next(3, 6);
             Vector3 spawnPoint = GetSpawnPoint();
 
-            if (!IsValidSpawn(spawnPoint))
+            if (!IsValidSpawn(spawnPoint) || spawnPoint == Vector3.Zero)
             {
                 Logger.LogError("Ponto de spawn inválido.");
                 return;
             }
-            for (int i = 0; i <= num; i++)
+            if (_pedGroup == null)
+                _pedGroup = new PedGroup();
+            if (_peds == null)
+                _peds = new List<Ped>();
+
+            for (int i = 0; i < num; i++)
             {
                 Ped ped = World.CreateRandomPed(spawnPoint.Around(5f));
 
-                if (ped == null)
+                if (ped is null || !ped.Exists())
                 {
-                    Logger.LogError("Falha ao criar ped em SpawnEntities.");
-                    continue; // Pule para o próximo ped, mas continue o loop
+                    Logger.LogError("Falha ao criar um ped.");
+                    continue;
                 }
-
                 // Configurar ped
-                Blip blip = ped.AddBlip();
-                blip.Color = BlipColor.Blue;
-                blip.Name = "Sobrevivente";
-                ped.RelationshipGroup = Relationships.FriendlyRelationship;
-                ped.Task.FightAgainstHatedTargets(9000f);
-                ped.SetAlertness(Alertness.FullyAlert);
-                ped.SetCombatAttributes(CombatAttributes.AlwaysFight, true);
-
-                // Dar arma ao ped
-                WeaponHash weapon = Database.WeaponHashes[
-                    Database.Random.Next(Database.WeaponHashes.Length)
-                ];
-                ped.Weapons.Give(weapon, 25, true, true);
-
-                // Verificar e adicionar ao grupo e lista
-                if (_pedGroup == null)
+                try
                 {
-                    Logger.LogError("_pedGroup não está inicializado.");
-                    continue;
-                }
-                _pedGroup.Add(ped, i == 0);
-                _pedGroup.Formation = Formation.Loose;
+                    Blip blip = ped.AddBlip();
+                    blip.Color = BlipColor.Blue;
+                    blip.Name = "Sobrevivente";
+                    ped.RelationshipGroup = Relationships.FriendlyRelationship;
+                    ped.Task.FightAgainstHatedTargets(9000f);
+                    ped.SetAlertness(Alertness.FullyAlert);
+                    ped.SetCombatAttributess(Extensions.CombatAttributes.AlwaysFight, true);
 
-                if (_peds == null)
+                    // Dar arma ao ped
+                    WeaponHash weapon = Database.WeaponHashes[
+                        Database.Random.Next(Database.WeaponHashes.Length)
+                    ];
+                    ped.Weapons.Give(weapon, 25, true, true);
+
+                    _pedGroup.Add(ped, i == 0);
+                    _pedGroup.Formation = Formation.Loose;
+                    _peds.Add(ped);
+
+                    // Configurar eventos do ped
+                    EntityEventWrapper entityEventWrapper = new EntityEventWrapper(ped);
+                    entityEventWrapper.Died += EventWrapperOnDied;
+                    entityEventWrapper.Disposed += EventWrapperOnDisposed;
+                }
+                catch (Exception ex)
                 {
-                    Logger.LogError("_peds não está inicializado.");
-                    continue;
+                    Logger.LogError($"Erro ao configurar ped: {ex.Message}");
                 }
-                _peds.Add(ped);
-
-                // Configurar eventos do ped
-                EntityEventWrapper entityEventWrapper = new EntityEventWrapper(ped);
-                entityEventWrapper.Died += EventWrapperOnDied;
-                entityEventWrapper.Disposed += EventWrapperOnDisposed;
             }
+
             Notification.Show("Sobreviventes ~b~amigáveis~s~ por perto.", true);
         }
 
-        private void EventWrapperOnDisposed(EntityEventWrapper sender, Entity entity)
+        private void EventWrapperOnDisposed(object sender, EntityEventArgs e)
         {
-            if (_peds.Contains(entity as Ped))
+            if (_peds.Contains(e.Entity as Ped))
             {
-                _peds.Remove(entity as Ped);
+                _peds.Remove(e.Entity as Ped);
             }
         }
 
-        private void EventWrapperOnDied(EntityEventWrapper sender, Entity entity)
+        private void EventWrapperOnDied(object sender, EntityEventArgs e)
         {
-            _peds.Remove(entity as Ped);
-            entity.AttachedBlip?.Delete();
-            entity.MarkAsNoLongerNeeded();
-            sender.Dispose();
+            _peds.Remove(e.Entity as Ped);
+            e.Entity.AttachedBlip?.Delete();
+            e.Entity.MarkAsNoLongerNeeded();
+            (sender as EntityEventWrapper).Dispose();
         }
 
         public override void CleanUp()

@@ -5,6 +5,8 @@ using System.Linq;
 using GTA;
 using GTA.Math;
 using GTA.UI;
+using LemonUI;
+using LemonUI.Elements;
 using LemonUI.Scaleform;
 using LemonUI.TimerBars;
 using ZumbisModV.DataClasses;
@@ -21,13 +23,14 @@ namespace ZumbisModV.SurvivorTypes
         private const int BlipRadius = 145;
         private readonly int _timeOut;
         private DataClasses.ParticleEffect _particle;
-        private readonly PedGroup _pedGroup;
-        private readonly List<Ped> _peds;
+        private PedGroup _pedGroup = new PedGroup();
+        private List<Ped> _peds = new List<Ped>();
         private Blip _blip;
         private Prop _prop;
         private DropType _dropType;
         private bool _notify;
         private Vector3 _dropZone;
+        private readonly TimerBarCollection _timerBarPool;
         private readonly TimerBarProgress _timerBar;
         private float _currentTime;
         private readonly PedHash[] _pedHashes;
@@ -67,10 +70,10 @@ namespace ZumbisModV.SurvivorTypes
 
             if (CantSeeCrate())
                 return;
-
-            Blip blip1 = _prop.AddBlip();
-            if (blip1 != null)
+            // Substitua por:
+            if (_prop.AttachedBlip == null || !_prop.AttachedBlip.Exists())
             {
+                Blip blip1 = _prop.AddBlip();
                 blip1.Sprite = BlipSprite.CrateDrop;
                 blip1.Color = BlipColor.Yellow;
                 blip1.Name = "Caixa de Drop";
@@ -87,146 +90,165 @@ namespace ZumbisModV.SurvivorTypes
             }
         }
 
-        private bool CantSeeCrate()
-        {
-            return !_prop.IsOnScreen
-                || _prop.IsOccluded
-                || _prop.AttachedBlip.Exists()
-                || _prop.Position.VDist(PlayerPosition) > 50.0;
-        }
-
         private void UpdateTimer()
         {
-            if (PlayerPosition.VDist(_dropZone) < 145.0)
+            if (PlayerPosition.VDist(_dropZone) < 145f)
             {
                 if (!_notify)
                 {
-                    new BigMessage(
-                        "~r~Entrando na Zona Hostil",
-                        "",
-                        MessageType.MissionPassedOldGen
-                    );
+                    BigMessage message = new BigMessage("~r~Entrando na Zona Hostil", "")
+                    {
+                        Type = MessageType.MissionPassedOldGen,
+                    };
+
+                    // Opcional: Efeito visual ao entrar na zona
+                    World.AddExplosion(PlayerPosition, ExplosionType.Rocket, 0f, 1f);
                     _notify = true;
                 }
-                if (!MenuController.TimerBars.Contains(_timerBar))
-                    return;
-                MenuController.TimerBars.Remove(_timerBar);
+                if (MenuController.TimerBars.Contains(_timerBar))
+                {
+                    MenuController.TimerBars.Remove(_timerBar);
+                }
             }
             else
             {
                 if (!MenuController.TimerBars.Contains(_timerBar))
+                {
                     MenuController.TimerBars.Add(_timerBar);
-                _timerBar.Progress = _currentTime / _timeOut;
+                }
+
+                _timerBar.Progress = _currentTime / (float)_timeOut;
                 _currentTime -= Game.LastFrameTime;
-                if (_currentTime > 0.0)
-                    return;
-                Complete();
-                Notification.Show("~r~Falha~s~ ao recuperar a caixa.");
+                if (_currentTime <= 0f)
+                {
+                    OnCompleted();
+                    Notification.Show("~r~Falha~s~ ao recuperar a caixa.");
+                }
             }
+        }
+
+        private bool CantSeeCrate()
+        {
+            if (_prop == null)
+                return true;
+
+            if (_prop.AttachedBlip == null || !_prop.AttachedBlip.Exists())
+                return true;
+
+            if (PlayerPosition == null)
+                return true;
+
+            return !_prop.IsOnScreen
+                || _prop.IsOccluded
+                || _prop.Position.VDist(PlayerPosition) > 50f;
         }
 
         public override void SpawnEntities()
         {
             Vector3 spawnPoint = GetSpawnPoint();
-
-            if (!IsValidSpawn(spawnPoint))
+            if (!IsValidSpawn(spawnPoint) || spawnPoint == Vector3.Zero)
             {
-                DropType[] values = (DropType[])Enum.GetValues(typeof(DropType));
-                _dropType = values[Database.Random.Next(values.Length)];
-
-                _prop = World.CreateProp(
-                    model: _dropType == DropType.Weapons
-                        ? "prop_mil_crate_01"
-                        : "ex_prop_crate_closed_bc",
-                    position: spawnPoint,
-                    rotation: Vector3.Zero,
-                    dynamic: false,
-                    placeOnGround: false
-                );
-                if (_prop == null)
-                {
-                    Notification.Show("Erro ao criar o objeto de drop.");
-                    Complete();
-                    return;
-                }
-
-                _blip = World.CreateBlip(_prop.Position.Around(45f), 145f);
-                if (_blip == null)
-                {
-                    Notification.Show("Erro ao criar o blip.");
-                    Complete();
-                    return;
-                }
-                _blip.Color = BlipColor.Yellow;
-                _blip.Alpha = 150;
-                _dropZone = _blip.Position;
-
-                _particle = WorldExtended.CreateParticleEffectAtCoord(
-                    _prop.Position.Around(5f),
-                    "exp_grd_flare"
-                );
-
-                if (_particle == null)
-                {
-                    Notification.Show("Erro ao criar partículas.");
-                    Complete();
-                    return;
-                }
-
-                _particle.Color = Color.LightGoldenrodYellow;
-
-                // Criação de pedestres
-                int num = Database.Random.Next(3, 6);
-
-                for (int i = 0; i <= num; i++)
-                {
-                    Vector3 spawnPosition = spawnPoint.Around(10f);
-                    Ped ped = World.CreatePed(
-                        _pedHashes[Database.Random.Next(_pedHashes.Length)],
-                        spawnPosition
-                    );
-
-                    if (ped != null)
-                    {
-                        WeaponHash weapon = _weapons[Database.Random.Next(_weapons.Length)];
-
-                        if (i > 0)
-                            ped.Weapons.Give(weapon, 45, true, true);
-                        else
-                            ped.Weapons.Give(WeaponHash.SniperRifle, 15, true, true);
-
-                        ped.Accuracy = 100;
-                        ped.Task.GuardCurrentPosition();
-                        ped.RelationshipGroup = Relationships.MilitiaRelationship;
-
-                        _pedGroup.Add(ped, i == 0);
-                        _peds.Add(ped);
-
-                        new EntityEventWrapper(ped).Died += PedWrapperOnDied;
-                    }
-                    else
-                    {
-                        Logger.LogError("Erro: Não foi possível criar um pedestre.");
-                    }
-                }
-
-                Model vehicleModel = new Model("mesa3");
-                Vector3 positionOnStreet = World.GetNextPositionOnStreet(
-                    _prop.Position.Around(25f)
-                );
-                World.CreateVehicle(vehicleModel, positionOnStreet);
-
-                string dropTypeText = _dropType == DropType.Loot ? "loot" : "armas";
-                Notification.Show($"Drop de {dropTypeText} ~y~Merryweather~s~ por perto.");
+                Logger.LogError("Ponto de spawn inválido.");
+                return;
             }
+            DropType[] dropType = (DropType[])Enum.GetValues(typeof(DropType));
+            _dropType = dropType[Database.Random.Next(dropType.Length)];
+
+            _prop = World.CreateProp(
+                model: _dropType == DropType.Weapons
+                    ? "prop_mil_crate_01"
+                    : "ex_prop_crate_closed_bc",
+                position: spawnPoint,
+                rotation: Vector3.Zero,
+                dynamic: false,
+                placeOnGround: false
+            );
+            if (_prop == null)
+            {
+                Notification.Show("Erro ao criar o objeto de drop.");
+                OnCompleted();
+                return;
+            }
+
+            _blip = World.CreateBlip(_prop.Position.Around(45f), 145f);
+            if (_blip == null)
+            {
+                Notification.Show("Erro ao criar o blip.");
+                OnCompleted();
+                return;
+            }
+            _blip.Color = BlipColor.Yellow;
+            _blip.Alpha = 150;
+            _dropZone = _blip.Position;
+
+            _particle = WorldExtended.CreateParticleEffectAtCoord(
+                _prop.Position.Around(5f),
+                "exp_grd_flare"
+            );
+
+            if (_particle == null)
+            {
+                Notification.Show("Erro ao criar partículas.");
+                OnCompleted();
+                return;
+            }
+
+            _particle.Color = Color.LightGoldenrodYellow;
+
+            // Criação de pedestres
+            int num = Database.Random.Next(3, 6);
+
+            if (_pedGroup == null)
+                _pedGroup = new PedGroup();
+            if (_peds == null)
+                _peds = new List<Ped>();
+
+            for (int i = 0; i <= num; i++)
+            {
+                Vector3 spawnPosition = spawnPoint.Around(10f);
+                Logger.LogInfo($"Tentando spawnar ped em {spawnPosition}");
+                Ped ped = World.CreatePed(
+                    _pedHashes[Database.Random.Next(_pedHashes.Length)],
+                    spawnPosition
+                );
+
+                if (ped is null || !ped.Exists())
+                {
+                    Logger.LogError("Falha ao criar um ped.");
+                    continue;
+                }
+
+                WeaponHash weapon = _weapons[Database.Random.Next(_weapons.Length)];
+
+                if (i > 0)
+                    ped.Weapons.Give(weapon, 45, true, true);
+                else
+                    ped.Weapons.Give(WeaponHash.SniperRifle, 15, true, true);
+
+                ped.Accuracy = 100;
+                ped.Task.GuardCurrentPosition();
+                ped.RelationshipGroup = Relationships.MilitiaRelationship;
+
+                _pedGroup.Add(ped, i == 0);
+                _peds.Add(ped);
+
+                new EntityEventWrapper(ped).Died += PedWrapperOnDied;
+            }
+
+            Model vehicleModel = new Model("mesa3");
+            Vector3 positionOnStreet = World.GetNextPositionOnStreet(_prop.Position.Around(25f));
+            World.CreateVehicle(vehicleModel, positionOnStreet);
+
+            string dropTypeText = _dropType == DropType.Loot ? "loot" : "armas";
+            Notification.Show($"Drop de {dropTypeText} ~y~Merryweather~s~ por perto.");
         }
 
-        private void PedWrapperOnDied(EntityEventWrapper sender, Entity entity)
+        private void PedWrapperOnDied(object sender, EntityEventArgs e)
         {
-            _peds.Remove(entity as Ped);
-            entity.MarkAsNoLongerNeeded();
-            entity.AttachedBlip?.Delete();
-            sender.Dispose();
+            _peds.Remove(e.Entity as Ped);
+            e.Entity.MarkAsNoLongerNeeded();
+            e.Entity.AttachedBlip?.Delete();
+            (sender as EntityEventWrapper).Dispose();
         }
 
         private void TryInteract(Entity prop)
@@ -268,7 +290,7 @@ namespace ZumbisModV.SurvivorTypes
                     PlayerInventory.Instance.PickupLoot(null, ItemType.Item, num3, num3, 0.4f);
                     break;
             }
-            Complete();
+            OnCompleted();
         }
 
         public override void CleanUp()

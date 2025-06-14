@@ -49,7 +49,9 @@ namespace ZumbisModV.Static
         {
             File.AppendAllText(
                 DefaultCrashLogPath,
-                string.Format("\n[{0}] {1}", DateTime.UtcNow.ToShortDateString(), ex.Message)
+                //string.Format("\n[{0}] {1}", DateTime.UtcNow.ToShortDateString(), ex.Message)
+                string.Format("\n{0:dd-MM-yyyy HH:mm:ss} [{0}] {1}", DateTime.UtcNow.ToShortDateString(), ex.Message)
+                
             );
         }
     }

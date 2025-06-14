@@ -7,11 +7,7 @@ namespace ZumbisModV.Extensions
     {
         public static VehicleClass GetModelClass(Model vehicleModel)
         {
-            return (VehicleClass)
-                Function.Call<int>(
-                    Hash.GET_VEHICLE_CLASS_FROM_NAME,
-                    new InputArgument[] { vehicleModel.Hash }
-                );
+            return Function.Call<VehicleClass>(Hash.GET_VEHICLE_CLASS_FROM_NAME, vehicleModel.Hash);
         }
     }
 }

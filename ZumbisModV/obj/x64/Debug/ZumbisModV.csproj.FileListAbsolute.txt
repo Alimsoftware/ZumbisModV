@@ -9,3 +9,4 @@ F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\x64\Debug\ScriptHookVDot
 F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\x64\Debug\ZumbisModV.csproj.Up2Date
 F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\x64\Debug\ZumbisModV.dll
 F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\obj\x64\Debug\ZumbisModV.pdb
+F:\GitHub\GTA MODDING\Scripts\ZumbisModV\ZumbisModV\bin\x64\Debug\ScriptHookVDotNet3.pdb

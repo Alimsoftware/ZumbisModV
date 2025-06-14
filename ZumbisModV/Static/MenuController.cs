@@ -1,14 +1,13 @@
 ﻿using System;
 using GTA;
-using LemonUI.Elements;
-using LemonUI.Menus;
+using LemonUI;
 using LemonUI.TimerBars;
 
 namespace ZumbisModV.Static
 {
     public class MenuController : Script
     {
-        private static LemonUI.ObjectPool _menuPool;
+        private static ObjectPool _menuPool;
         private static TimerBarCollection _timerBarCollection;
 
         public MenuController()
@@ -16,13 +15,13 @@ namespace ZumbisModV.Static
             Tick += OnTick;
         }
 
-        public static LemonUI.ObjectPool MenuPool
+        public static ObjectPool MenuPool
         {
             get
             {
                 if (_menuPool == null)
                 {
-                    _menuPool = new LemonUI.ObjectPool();
+                    _menuPool = new ObjectPool();
                 }
                 return _menuPool;
             }
@@ -47,12 +46,12 @@ namespace ZumbisModV.Static
                 && (_menuPool == null || (_menuPool != null && !_menuPool.AreAnyVisible))
             )
             {
-                _timerBarCollection.Process();
+                _timerBarCollection?.Process();
             }
 
             if (_menuPool != null)
             {
-                MenuPool.Process();
+                MenuPool?.Process();
             }
         }
     }

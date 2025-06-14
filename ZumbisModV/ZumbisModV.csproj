@@ -53,7 +53,8 @@
       <HintPath>..\packages\LemonUI.SHVDN3.2.1.2\lib\net48\LemonUI.SHVDN3.dll</HintPath>
     </Reference>
     <Reference Include="ScriptHookVDotNet3, Version=3.6.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ScriptHookVDotNet3.3.6.0\lib\net48\ScriptHookVDotNet3.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Jogos\GTAV\GTAV\ScriptHookVDotNet3.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -92,6 +93,7 @@
     <Compile Include="Extensions\GameExtended.cs" />
     <Compile Include="Extensions\PedExtended.cs" />
     <Compile Include="Extensions\PlayerExtended.cs" />
+    <Compile Include="Extensions\PropExt.cs" />
     <Compile Include="Extensions\RandomExtensions.cs" />
     <Compile Include="Extensions\ScriptExtended.cs" />
     <Compile Include="Extensions\SpeechModifier.cs" />
@@ -125,12 +127,16 @@
     <Compile Include="MenuType.cs" />
     <Compile Include="ModController.cs" />
     <Compile Include="NearbyResource.cs" />
+    <Compile Include="Passenger.cs" />
     <Compile Include="PedCollection.cs" />
     <Compile Include="PedData.cs" />
     <Compile Include="PlayerManagement\LootPickupType.cs" />
     <Compile Include="PlayerManagement\PedTask.cs" />
+    <Compile Include="PlayerManagement\PlayerGroupManager.cs" />
     <Compile Include="PlayerManagement\PlayerInventory.cs" />
     <Compile Include="PlayerManagement\PlayerMap.cs" />
+    <Compile Include="PlayerManagement\PlayerStats.cs" />
+    <Compile Include="PlayerManagement\PlayerVehicles.cs" />
     <Compile Include="PlayerManagement\StatDisplayItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripts\AnimalSpawner.cs" />
@@ -160,6 +166,7 @@
     <Compile Include="Weapon.cs" />
     <Compile Include="WeaponInventoryItem.cs" />
     <Compile Include="WeaponStorageInventoryItem.cs" />
+    <Compile Include="Wrappers\EntityEventArgs.cs" />
     <Compile Include="Wrappers\EntityEventWrapper.cs" />
     <Compile Include="Zumbis\ZumbiPed.cs" />
     <Compile Include="Zumbis\ZumbiTypes\Runner.cs" />

@@ -2,7 +2,7 @@
 {
     public enum Alertness
     {
-        Nuetral,
+        Neutral,
         HeardSomething,
         KnowsOfEventOrigin,
         FullyAlert,

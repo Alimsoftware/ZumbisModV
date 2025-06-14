@@ -6,13 +6,13 @@ namespace ZumbisModV.Zumbis.ZumbiTypes
 {
     public class Walker : ZumbiPed
     {
-        //private readonly Ped _ped;
+        private readonly Ped _ped;
         public override string MovementStyle { get; set; } = "move_m@drunk@verydrunk";
 
         public Walker(Ped ped)
             : base(ped)
         {
-            // _ped = this;
+            _ped = this;
         }
 
         private void PlayAnimationIfNotPlaying(
@@ -43,10 +43,10 @@ namespace ZumbisModV.Zumbis.ZumbiTypes
 
                     if (!target.IsInvincible)
                     {
-                        target.ApplyDamage(ZumbiPed.ZombieDamage);
+                        target.ApplyDamage(ZombieDamage);
                     }
 
-                    base.InfectTarget(target);
+                    InfectTarget(target);
                 }
             }
         }

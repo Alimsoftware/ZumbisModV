@@ -24,8 +24,8 @@ namespace ZumbisModV.Static
         public static void Check()
         {
             ScriptSettings scriptSettings = ScriptSettings.Load("./scripts/ZumbisModV.ini");
-            bool flag = scriptSettings.GetValue("mod", "version_id", "0") == Config.VersionId;
-            if (!flag)
+
+            if (scriptSettings.GetValue("mod", "version_id", "0") != VersionId)
             {
                 if (File.Exists("./scripts/ZumbisModV.ini"))
                 {
@@ -39,11 +39,11 @@ namespace ZumbisModV.Static
                 Notification.Show(
                     string.Format(
                         "Atualizando ZumbisModV para a versão ~g~{0}~s~. Substituindo o arquivo de inventário ",
-                        Config.VersionId
+                        VersionId
                     ) + " já que há novos itens.",
                     true
                 );
-                scriptSettings.SetValue("mod", "version_id", Config.VersionId);
+                scriptSettings.SetValue("mod", "version_id", VersionId);
                 scriptSettings.Save();
             }
         }

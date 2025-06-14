@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using GTA;
 using GTA.Math;
@@ -27,43 +28,18 @@ namespace ZumbisModV.Scripts
         //private List<Ped> _peds;
         //private List<Vehicle> _vehicles;
 
-        // Token: 0x040001C6 RID: 454
         public const int SpawnBlockingDistance = 150;
-
-        // Token: 0x040001C7 RID: 455
         private readonly int _maxVehicles = 10;
-
-        // Token: 0x040001C8 RID: 456
         private readonly int _maxZombies = 30;
-
-        // Token: 0x040001C9 RID: 457
         private readonly int _minVehicles = 1;
-
-        // Token: 0x040001CA RID: 458
         private readonly int _minZombies = 7;
-
-        // Token: 0x040001CB RID: 459
         private readonly int _spawnDistance = 75;
-
-        // Token: 0x040001CC RID: 460
         private readonly int _minSpawnDistance = 50;
-
-        // Token: 0x040001CD RID: 461
         private readonly int _zombieHealth = 750;
-
-        // Token: 0x040001CE RID: 462
         private bool _nightFall;
-
-        // Token: 0x040001CF RID: 463
         private List<Ped> _peds = new List<Ped>();
-
-        // Token: 0x040001D0 RID: 464
         private List<Vehicle> _vehicles = new List<Vehicle>();
-
-        // Token: 0x040001D1 RID: 465
         private readonly VehicleClass[] _classes;
-
-        // Token: 0x040001D2 RID: 466
         public string[] InvalidZoneNames;
 
         public SpawnBlocker SpawnBlocker { get; }
@@ -78,7 +54,7 @@ namespace ZumbisModV.Scripts
             _peds = new List<Ped>();
             _vehicles = new List<Vehicle>();
 
-            VehicleClass[] array = new VehicleClass[3]
+            _classes = new VehicleClass[]
             {
                 VehicleClass.Sedans,
                 VehicleClass.Compacts,
@@ -161,23 +137,40 @@ namespace ZumbisModV.Scripts
 
         private void SpawnPeds()
         {
-            _peds = _peds.Where(Exists).ToList();
+            // Remove peds que não existem mais
+            _peds = _peds.Where(ped => ped.Exists()).ToList();
+
+            // Se já tem o máximo de zumbis, não spawna mais
             if (_peds.Count >= _maxZombies)
                 return;
 
-            for (int i = 0; i < _maxZombies - _peds.Count; i++)
+            int toSpawn = _maxZombies - _peds.Count;
+
+            for (int i = 0; i < toSpawn; i++)
             {
+                // Gera posição ao redor do jogador dentro do raio _spawnDistance
                 Vector3 spawnPoint = PlayerPosition.Around(_spawnDistance);
+
+                // Ajusta para a próxima posição válida na rua
                 spawnPoint = World.GetNextPositionOnStreet(spawnPoint);
 
-                if (IsValidSpawn(spawnPoint))
+                if (!IsValidSpawn(spawnPoint))
+                    break;
+
+                Vector3 around = spawnPoint.Around(5f);
+
+                // Verifica distância mínima para spawn
+                if (around.DistanceTo(Game.Player.Character.Position) < _minSpawnDistance)
+                    break;
+
+                Ped randomPed = World.CreateRandomPed(around);
+                if (randomPed == null || !randomPed.Exists())
                 {
-                    Ped randomPed = World.CreateRandomPed(spawnPoint);
-                    if (randomPed != null)
-                    {
-                        _peds.Add(ZombieCreator.InfectPed(randomPed, _zombieHealth));
-                    }
+                    continue;
                 }
+
+                // Infecta o ped e adiciona na lista
+                _peds.Add(ZombieCreator.InfectPed(randomPed, _zombieHealth));
             }
         }
 

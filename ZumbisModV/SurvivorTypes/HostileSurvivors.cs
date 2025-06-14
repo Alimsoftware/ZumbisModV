@@ -12,21 +12,20 @@ namespace ZumbisModV.SurvivorTypes
 {
     public class HostileSurvivors : Survivors
     {
-        private readonly PedGroup _group = new PedGroup();
-        private readonly List<Ped> _peds = new List<Ped>();
+        private PedGroup _pedGroup = new PedGroup();
+        private List<Ped> _peds = new List<Ped>();
         private Vehicle _vehicle;
 
         public override void Update()
         {
             if (_peds.Count <= 0)
             {
-                Complete();
+                OnCompleted();
             }
         }
 
         public override void SpawnEntities()
         {
-            Logger.LogInfo("SpawnEntities() iniciado.");
             if (Database.Random == null || Database.WeaponHashes == null)
             {
                 Logger.LogError("Database ou seus membros não estão inicializados.");
@@ -35,11 +34,16 @@ namespace ZumbisModV.SurvivorTypes
 
             Vector3 spawnPoint = GetSpawnPoint();
 
-            if (!IsValidSpawn(spawnPoint))
+            if (!IsValidSpawn(spawnPoint) || spawnPoint == Vector3.Zero)
             {
                 Logger.LogError("Ponto de spawn inválido.");
                 return;
             }
+            if (_pedGroup == null)
+                _pedGroup = new PedGroup();
+            if (_peds == null)
+                _peds = new List<Ped>();
+
             Vehicle vehicle = World.CreateVehicle(
                 Database.GetRandomVehicleModel(),
                 spawnPoint,
@@ -48,94 +52,85 @@ namespace ZumbisModV.SurvivorTypes
 
             if (vehicle == null)
             {
-                Complete();
+                Logger.LogError("Falha ao criar veículo.");
+                OnCompleted();
+                return;
             }
-            else
+
+            _vehicle = vehicle;
+
+            var blip = _vehicle.AddBlip();
+            blip.Name = "Veículo Inimigo";
+            blip.Sprite = BlipSprite.PlayerstateKeyholder;
+            blip.Color = BlipColor.Red;
+
+            var entityEventWrapper = new EntityEventWrapper(_vehicle);
+            entityEventWrapper.Died += VehicleWrapperOnDied;
+            entityEventWrapper.Updated += VehicleWrapperOnUpdated;
+
+            int maxPeds = Math.Max(vehicle.PassengerCapacity + 1, 1);
+
+            for (int i = 0; i < maxPeds; i++)
             {
-                _vehicle = vehicle;
-                Blip blip = _vehicle.AddBlip();
-                blip.Name = "Veículo Inimigo";
-                blip.Sprite = BlipSprite.PlayerstateKeyholder;
-                blip.Color = BlipColor.Red;
-                EntityEventWrapper entityEventWrapper = new EntityEventWrapper(_vehicle);
-                entityEventWrapper.Died += VehicleWrapperOnDied;
-                entityEventWrapper.Updated += VehicleWrapperOnUpdated;
-                for (int i = 0; i < vehicle.PassengerCapacity + 1; i++)
+                if (_pedGroup.MemberCount >= 6)
+                    break;
+
+                VehicleSeat seat = (i == 0) ? VehicleSeat.Driver : VehicleSeat.Any;
+                Ped ped = vehicle.CreateRandomPedOnSeat(seat);
+
+                if (ped == null || !ped.Exists())
                 {
-                    bool flag3 = _group.MemberCount >= 6;
-                    if (!flag3)
-                    {
-                        if (vehicle.IsSeatFree(VehicleSeat.Any))
-                        {
-                            Ped ped = vehicle.CreateRandomPedOnSeat(
-                                (i == 0) ? VehicleSeat.Driver : VehicleSeat.Any
-                            );
-
-                            if (ped != null)
-                            {
-                                // Configurar ped
-                                Blip blip2 = ped.AddBlip();
-                                blip2.Name = "Inimigo";
-                                ped.RelationshipGroup = Relationships.HostileRelationship;
-                                ped.SetAlertness(Alertness.FullyAlert);
-                                ped.SetCombatAttributes(CombatAttributes.AlwaysFight, true);
-
-                                // Dar arma ao ped
-                                WeaponHash weapon = Database.WeaponHashes[
-                                    Database.Random.Next(Database.WeaponHashes.Length)
-                                ];
-                                ped.Weapons.Give(weapon, 25, true, true);
-
-                                // Verificar e adicionar ao grupo e lista
-                                if (_group == null)
-                                {
-                                    Logger.LogError("_group não está inicializado.");
-                                    continue;
-                                }
-                                _group.Add(ped, i == 0);
-
-                                if (_peds == null)
-                                {
-                                    Logger.LogError("_peds não está inicializado.");
-                                    continue;
-                                }
-                                _peds.Add(ped);
-
-                                // Configurar eventos do ped
-                                EntityEventWrapper entityEventWrapper2 = new EntityEventWrapper(
-                                    ped
-                                );
-                                entityEventWrapper2.Died += PedWrapperOnDied;
-                                entityEventWrapper2.Updated += PedWrapperOnUpdated;
-                                entityEventWrapper2.Disposed += PedWrapperOnDisposed;
-                            }
-                        }
-                    }
+                    Logger.LogError($"Falha ao criar ped no seat {seat}.");
+                    continue;
                 }
-                Notification.Show("~r~Hostis~s~ por perto!");
+
+                // Configurar ped
+                var blip2 = ped.AddBlip();
+                blip2.Name = "Inimigo";
+
+                ped.RelationshipGroup = Relationships.HostileRelationship;
+                ped.SetAlertness(Alertness.FullyAlert);
+                ped.SetCombatAttributess(Extensions.CombatAttributes.AlwaysFight, true);
+
+                // Dar arma ao ped
+                WeaponHash weapon = Database.WeaponHashes[
+                    Database.Random.Next(Database.WeaponHashes.Length)
+                ];
+                ped.Weapons.Give(weapon, 25, true, true);
+
+                // Verificar e adicionar ao grupo e lista
+                _pedGroup.Add(ped, i == 0);
+                _peds.Add(ped);
+
+                // Configurar eventos do ped
+                var entityEventWrapper2 = new EntityEventWrapper(ped);
+                entityEventWrapper2.Died += PedWrapperOnDied;
+                entityEventWrapper2.Updated += PedWrapperOnUpdated;
+                entityEventWrapper2.Disposed += PedWrapperOnDisposed;
             }
+            Notification.PostTicker("~r~Hostis~s~ por perto!", true, false);
         }
 
-        private void PedWrapperOnDisposed(EntityEventWrapper sender, Entity entity)
+        private void PedWrapperOnDisposed(object sender, EntityEventArgs e)
         {
-            if (_peds.Contains(entity as Ped))
+            if (_peds.Contains(e.Entity as Ped))
             {
-                _peds.Remove(entity as Ped);
+                _peds.Remove(e.Entity as Ped);
             }
         }
 
-        private void VehicleWrapperOnUpdated(EntityEventWrapper sender, Entity entity)
+        private void VehicleWrapperOnUpdated(object sender, EntityEventArgs e)
         {
-            if (entity != null)
+            if (e.Entity != null)
             {
-                entity.AttachedBlip.Alpha = (_vehicle.Driver.Exists() ? 255 : 0);
+                e.Entity.AttachedBlip.Alpha = (_vehicle.Driver.Exists() ? 255 : 0);
             }
         }
 
-        private void VehicleWrapperOnDied(EntityEventWrapper sender, Entity entity)
+        private void VehicleWrapperOnDied(object sender, EntityEventArgs e)
         {
-            entity.AttachedBlip?.Delete(); // Remove o Blip, se existir
-            sender.Dispose();
+            e.Entity.AttachedBlip?.Delete(); // Remove o Blip, se existir
+            (sender as EntityEventWrapper)?.Dispose();
 
             if (_vehicle != null)
             {
@@ -144,9 +139,9 @@ namespace ZumbisModV.SurvivorTypes
             }
         }
 
-        private void PedWrapperOnUpdated(EntityEventWrapper sender, Entity entity)
+        private void PedWrapperOnUpdated(object sender, EntityEventArgs e)
         {
-            Ped ped = entity as Ped;
+            Ped ped = e.Entity as Ped;
             bool flag = ped == null;
             if (!flag)
             {
@@ -172,11 +167,11 @@ namespace ZumbisModV.SurvivorTypes
             }
         }
 
-        private void PedWrapperOnDied(EntityEventWrapper sender, Entity entity)
+        private void PedWrapperOnDied(object sender, EntityEventArgs e)
         {
-            entity.AttachedBlip?.Delete();
+            e.Entity.AttachedBlip?.Delete();
 
-            _peds.Remove(entity as Ped);
+            _peds.Remove(e.Entity as Ped);
         }
 
         public override void CleanUp()

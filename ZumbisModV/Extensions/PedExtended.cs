@@ -223,7 +223,7 @@ namespace ZumbisModV.Extensions
             Function.Call(Hash.SET_PED_CAN_PLAY_AMBIENT_ANIMS, ped.Handle, toggle ? 1 : 0);
         }
 
-        public static void SetCombatAttributes(
+        public static void SetCombatAttributess(
             this Ped ped,
             CombatAttributes attribute,
             bool enabled
@@ -335,9 +335,9 @@ namespace ZumbisModV.Extensions
 
             // Define o evento de morte para remover o blip e liberar recursos
             var wrapper = new EntityEventWrapper(ped);
-            wrapper.Died += (sender, entity) =>
+            wrapper.Died += (sender, args) =>
             {
-                entity.AttachedBlip?.Delete();
+                args.Entity.AttachedBlip?.Delete();
                 wrapper.Dispose();
             };
 

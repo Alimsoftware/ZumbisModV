@@ -60,7 +60,7 @@ namespace ZumbisModV.Controllers
                     currentEvent = TryCreateEvent(new FriendlySurvivors());
                     break;
                 case EventTypes.Hostile:
-                    if (Database.Random.NextDouble() <= 0.2)
+                    if (Database.Random.NextDouble() <= 20)
                     {
                         currentEvent = TryCreateEvent(new HostileSurvivors());
                         break;
@@ -97,11 +97,11 @@ namespace ZumbisModV.Controllers
         {
             Create();
             Destroy();
-            //_survivors.ForEach(s => s.Update());
-            for (int i = 0; i < _survivors.Count; i++)
+
+            _survivors.ForEach(s =>
             {
-                _survivors[i].Update();
-            }
+                s.Update();
+            });
         }
 
         private void Destroy()
@@ -123,10 +123,13 @@ namespace ZumbisModV.Controllers
 
         private void Create()
         {
-            if (Spawn || DateTime.UtcNow > _currentDelayTime)
+            if (Spawn)
             {
-                CreatedSurvivors?.Invoke();
-                SetDelayTime();
+                if (DateTime.UtcNow > _currentDelayTime)
+                {
+                    CreatedSurvivors?.Invoke();
+                    SetDelayTime();
+                }
             }
         }
 
